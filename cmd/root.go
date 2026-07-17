@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "rator",
@@ -27,6 +29,7 @@ Example Usage:
 
   # Generate Java Records with JSpecify null-safety annotations
   rator generate -i user.json -l java --nullable`,
+	Version: Version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
