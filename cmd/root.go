@@ -9,19 +9,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
+
+var verbose bool
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "rator",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "A generator of type-safe JVM models from JSON payloads",
+	Long: `rator is a developer-friendly command-line utility designed to accelerate JVM backend development.
+By analyzing raw JSON structures, rator automatically infers types and generates robust, 
+type-safe Java Records, classic POJOs, or Kotlin Data Classes.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+Equipped with support for modern industry standards like JSpecify nullability annotations 
+and popular serialization frameworks (Jackson, kotlinx.serialization), rator handles 
+complex, nested API structures locally, safely, and instantaneously.
+
+Example Usage:
+  # Generate Kotlin data classes with kotlinx.serialization annotations
+  rator generate -i response.json -l kotlin -f kotlinx
+
+  # Generate Java Records with JSpecify null-safety annotations
+  rator generate -i user.json -l java --nullable`,
+	Version: Version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -42,5 +52,6 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.Flags().BoolP("toggle", "t", false, "help message for toggle")
 }
