@@ -5,15 +5,25 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/MaciejSieradz/rator/internal/generator"
 	"github.com/spf13/cobra"
 )
 
-// generateCmd represents the generate command
-var generateCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "Generates code from the JSON file/files",
-	Long: `Generates code from JSON file or files. It can generate records, POJOs, or 
+type generateOptions struct {
+	inputPath string
+	pkgName   string
+	language  string
+}
+
+func newGenerateCmd() *cobra.Command {
+	opts := &generateOptions{}
+
+	cmd := &cobra.Command{
+		Use:   "generate",
+		Short: "Generates code from the JSON file/files",
+		Long: `Generates code from JSON file or files. It can generate records, POJOs, or 
 Kotlin data classes based on the flags.
 
 Example Usage:
@@ -22,35 +32,50 @@ rator generate -i input.json -o com/example/destination
 # Generates Kotlin mutable classes
 rator generate -i input.json -l kotlin --mutable true
 	`,
-	Run: func(cmd *cobra.Command, args []string) {
-		inputFlag, err := cmd.Flags().GetString("input")
-		if err != nil {
-			fmt.Printf("Error while invoking generate command: %v\n", err)
-			return
-		}
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return opts.Validate()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return opts.Run()
+		},
+	}
 
-		if inputFlag == "" {
-			fmt.Printf("Input flag is required\n")
-			return
-		}
+	flags := cmd.Flags()
+	flags.StringVarP(&opts.inputPath, "input", "i", "", "Relative path to JSON file")
+	flags.StringVarP(&opts.pkgName, "package", "p", "com.example.model.rator", "Package declaration for generated files")
+	flags.StringVarP(&opts.language, "lang", "l", "java", "Language in which the files should be generated")
 
-		fmt.Printf("input: %v", inputFlag)
-	},
+	_ = cmd.MarkFlagRequired("input")
+
+	return cmd
+}
+
+func (o *generateOptions) Validate() error {
+	if _, err := os.Stat(o.inputPath); os.IsNotExist(err) {
+		return fmt.Errorf("input file does not exist: %s", o.inputPath)
+	}
+
+	switch o.language {
+	case "java", "kotlin":
+		return nil
+	default:
+		return fmt.Errorf("unsupported language %q (must be 'java' or 'kotlin')", o.language)
+	}
+}
+
+func (o *generateOptions) Run() error {
+	gen, err := generator.New(o.inputPath, o.language, o.pkgName)
+	if err != nil {
+		return fmt.Errorf("failed to initialize generator: %w", err)
+	}
+
+	if err := gen.Generate(); err != nil {
+		return fmt.Errorf("failed to generate code: %w", err)
+	}
+
+	return nil
 }
 
 func init() {
-	rootCmd.AddCommand(generateCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// generateCmd.PersistentFlags().String("foo", "", "A help for foo")
-	generateCmd.PersistentFlags().StringP("input", "i", "", "Relative path to JSON file")
-	generateCmd.PersistentFlags().StringP("package", "p", "com.example.model.rator", "Package declaration for generated files")
-	generateCmd.PersistentFlags().StringP("lang", "l", "java", "Language in which the files should be generated")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// generateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.AddCommand(newGenerateCmd())
 }
