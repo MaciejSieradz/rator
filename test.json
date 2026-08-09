@@ -1,0 +1,46 @@
+{
+    "id": "usr_987654321",
+    "index": 1,
+    "guid": "c3f8d910-1234-4567-89ab-cdef01234567",
+    "isActive": true,
+    "balance": 2450.75,
+    "picture": "https://via.placeholder.com/150",
+    "age": 29,
+    "eyeColor": "brown",
+    "name": {
+        "first": "Alex",
+        "last": "Morgan"
+    },
+    "company": "TechCorp",
+    "email": "alex.morgan@example.com",
+    "phone": "+1 (555) 019-2834",
+    "address": {
+        "street": "123 Innovation Way",
+        "city": "San Francisco",
+        "state": "CA",
+        "zipCode": "94105",
+        "coordinates": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        }
+    },
+    "tags": [
+        "developer",
+        "json",
+        "testing",
+        "sample-data"
+    ],
+    "preferences": {
+        "notifications": {
+            "email": true,
+            "sms": false,
+            "push": true
+        },
+        "theme": "dark"
+    },
+    "roles": [
+        "admin",
+        "editor"
+    ],
+    "metadata": null
+}
