@@ -30,14 +30,9 @@ func (l *Lexer) NextToken() token.Token {
 	case ':':
 		tok = newToken(token.COLON, l.ch)
 	case '"':
-		l.readChar()
-		tok.Literal = l.readString()
-		if l.peekChar() == ':' {
-			tok.Type = token.IDENT
-		} else {
-			tok.Type = token.STRING
-		}
-		l.readChar()
+		literal, tokenType := l.readQuote()
+		tok.Literal = literal
+		tok.Type = tokenType
 		return tok
 	case '{':
 		tok = newToken(token.LBRACE, l.ch)
@@ -92,6 +87,20 @@ func (l *Lexer) readNumber() string {
 	}
 
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) readQuote() (string, token.TokenType) {
+	var tokenType token.TokenType
+	l.readChar() // skipping first quote
+	literal := l.readString()
+	if l.peekChar() == ':' {
+		tokenType = token.IDENT
+	} else {
+		tokenType = token.STRING
+	}
+	l.readChar() // skipping second quote
+	return literal, tokenType
+
 }
 
 func (l *Lexer) readString() string {
