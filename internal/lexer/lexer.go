@@ -52,11 +52,7 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Literal = l.readNumber()
-			if strings.Contains(tok.Literal, ".") {
-				tok.Type = token.FLOAT
-			} else {
-				tok.Type = token.INT
-			}
+			tok.Type = l.decideNumberType(tok.Literal)
 			return tok
 		}
 		tok = newToken(token.ILLEGAL, l.ch)
@@ -87,6 +83,15 @@ func (l *Lexer) readNumber() string {
 	}
 
 	return l.input[position:l.position]
+}
+
+// TODO: Later possibility to calculate size of the number
+func (l *Lexer) decideNumberType(literal string) token.TokenType {
+	if strings.Contains(literal, ".") {
+		return token.FLOAT
+	} else {
+		return token.INT
+	}
 }
 
 func (l *Lexer) readQuote() (string, token.TokenType) {
