@@ -3,6 +3,9 @@ package generator
 import (
 	"fmt"
 	"os"
+
+	"github.com/MaciejSieradz/rator/internal/lexer"
+	"github.com/MaciejSieradz/rator/internal/token"
 )
 
 type Generator interface {
@@ -21,7 +24,14 @@ func (g *BasicGenerator) Generate() error {
 		return fmt.Errorf("error reading file %q: %w", g.InputPath, err)
 	}
 
-	fmt.Println(string(dat))
+	lexer := lexer.New(string(dat))
+	var tokens []token.Token
+	for tok := lexer.NextToken(); tok.Type != token.EOF; {
+		tokens = append(tokens, tok)
+		fmt.Println(tok)
+		tok = lexer.NextToken()
+	}
+
 	return nil
 }
 
